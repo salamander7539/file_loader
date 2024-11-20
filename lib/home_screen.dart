@@ -106,7 +106,7 @@ class _TileListState extends State<TileList> {
   late CancelToken cancelToken;
   var getPathFile = DirectoryPath();
 
-  startDownload() async {
+  startDownload(bool open) async {
     cancelToken = CancelToken();
     var storePath = await getPathFile.getPath();
     filePath = '$storePath/$fileName';
@@ -130,7 +130,7 @@ class _TileListState extends State<TileList> {
         downloading = false;
         fileExists = true;
       });
-      openFile();
+      if (open) openFile();
     } catch (e) {
       debugPrint('$e');
       setState(() {
@@ -184,13 +184,17 @@ class _TileListState extends State<TileList> {
           splashColor: Colors.transparent,
           hoverColor: Colors.transparent,
           onTap: () {
-            fileExists && downloading == false ? openFile() : startDownload();
+            fileExists && downloading == false
+                ? openFile()
+                : startDownload(true);
           },
           child: Text(fileName),
         ),
         leading: IconButton(
           onPressed: () {
-            fileExists && downloading == false ? openFile() : startDownload();
+            fileExists && downloading == false
+                ? openFile()
+                : startDownload(false);
           },
           icon: fileExists
               ? const Icon(
@@ -216,15 +220,13 @@ class _TileListState extends State<TileList> {
                     )
                   : const Icon(Icons.file_download_outlined),
         ),
-        trailing: IconButton(
-            onPressed: () {
-              fileExists && downloading == false
-                  ? openFile()
-                  : cancelDownload();
-            },
-            icon: downloading == true
-                ? const Icon(Icons.close)
-                : const SizedBox()),
+        trailing: downloading == true
+            ? IconButton(
+                onPressed: () {
+                  cancelDownload();
+                },
+                icon: const Icon(Icons.close))
+            : const SizedBox(),
       ),
     );
   }
